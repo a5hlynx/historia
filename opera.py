@@ -6,18 +6,18 @@ import util
 import sys
 import argparse
 
-es = "978307200"
+es = "11644473600"
 q = "SELECT "\
-        "i.url AS URL,"\
-        "h.title,"\
-        "datetime(h.visit_time + " + es + ", 'unixepoch', 'localtime') AS 'visit time',"\
-        "i.visit_count AS 'visit count',"\
-        "i2.url AS 'visit from' "\
+        "u.url AS URL,"\
+        "u.title AS title,"\
+        "datetime(v.visit_time/1000000 - " + es + ", 'unixepoch', 'localtime' ) AS 'visit time',"\
+        "u.visit_count AS 'visit count',"\
+        "u2.url AS 'visit from' "\
      "FROM "\
-        "history_visits AS h "\
-        "INNER JOIN history_items AS i ON h.history_item = i.id "\
-        "LEFT JOIN history_visits AS h2 ON h.redirect_source = h2.id "\
-        "LEFT JOIN history_items AS i2 ON h2.history_item = i2.id;"
+        "visits AS v "\
+        "INNER JOIN urls AS u ON v.url = u.id "\
+        "LEFT JOIN visits AS v2 ON v.from_visit = v2.id "\
+        "LEFT JOIN urls AS u2 ON v2.url = u2.id;"
 
 if sys.version_info[0] != 3:
     print ("this script is supporsed to be run on python 3.", file=sys.stderr)
@@ -26,7 +26,7 @@ if sys.version_info[0] != 3:
 
 def main():
     parser = argparse.ArgumentParser()
-    parser.add_argument("-i", "--input", default="History.db")
+    parser.add_argument("-i", "--input", default="History")
     parser.add_argument("-o", "--output", default="history.csv")
     args = parser.parse_args()
 
